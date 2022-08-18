@@ -1,0 +1,6 @@
+package com.projects.tarefas
+
+import io.flutter.embedding.android.FlutterActivity
+
+class MainActivity: FlutterActivity() {
+}
