@@ -1,4 +1,5 @@
 import 'package:Tarefas/models/product.dart';
+import 'package:Tarefas/repositories/product_repository.dart';
 import 'package:Tarefas/widgets/product_list_item.dart';
 import 'package:flutter/material.dart';
 
@@ -11,12 +12,23 @@ class ComprasListPage extends StatefulWidget {
 
 class _ComprasListPageState extends State<ComprasListPage> {
   final TextEditingController productsController = TextEditingController();
+  final ProductRepository productRepository = ProductRepository();
 
   List<Product> products = [];
+
   Product? deletedProduct;
   int? deletedProductPos;
 
-  bool get isNull => productsController == null;
+  @override
+  void initState() {
+    super.initState();
+
+    productRepository.getProductList().then((value) {
+      setState(() {
+        products = value;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,33 +57,34 @@ class _ComprasListPageState extends State<ComprasListPage> {
                       child: TextField(
                         controller: productsController,
                         decoration: InputDecoration(
-                            border: OutlineInputBorder(),
-                            labelText: "Item da compra",
-                            hintText: "Ex: Arroz"),
+                          border: OutlineInputBorder(),
+                          labelText: "Item da compra",
+                          hintText: "Ex: Arroz",
+                          errorText: 'Cagou',
+                        ),
                       ),
                     ),
                     SizedBox(
                       width: 8,
                     ),
                     ElevatedButton(
-                      onPressed: isNull
-                          ? null
-                          : () {
-                              String text = productsController.text;
-                              setState(() {
-                                Product newProduct =
-                                    Product(title: text, date: DateTime.now());
-                                products.add(newProduct);
-                              });
-                              productsController.clear();
-                            },
-                      child: Icon(
-                        Icons.add,
-                        size: 30,
-                      ),
+                      onPressed: () {
+                        String text = productsController.text;
+                        setState(() {
+                          Product newProduct =
+                              Product(title: text, date: DateTime.now());
+                          products.add(newProduct);
+                        });
+                        productsController.clear();
+                        productRepository.saveProductList(products);
+                      },
                       style: ElevatedButton.styleFrom(
                         primary: Color(0xff023047),
                         padding: EdgeInsets.all(14),
+                      ),
+                      child: Icon(
+                        Icons.add,
+                        size: 30,
                       ),
                     )
                   ],
@@ -139,6 +152,7 @@ class _ComprasListPageState extends State<ComprasListPage> {
       ),
       duration: Duration(seconds: 4),
     ));
+    productRepository.saveProductList(products);
   }
 
   void showDialogDeleteAll() {
@@ -178,5 +192,6 @@ class _ComprasListPageState extends State<ComprasListPage> {
     setState(() {
       products.clear();
     });
+    productRepository.saveProductList(products);
   }
 }
