@@ -19,6 +19,8 @@ class _ComprasListPageState extends State<ComprasListPage> {
   Product? deletedProduct;
   int? deletedProductPos;
 
+  String? errorText;
+
   @override
   void initState() {
     super.initState();
@@ -59,8 +61,16 @@ class _ComprasListPageState extends State<ComprasListPage> {
                         decoration: InputDecoration(
                           border: OutlineInputBorder(),
                           labelText: "Item da compra",
+                          labelStyle: TextStyle(
+                            color: Color(0xff023047),
+                          ),
                           hintText: "Ex: Arroz",
-                          errorText: 'Cagou',
+                          errorText: errorText,
+                          focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                            width: 2,
+                            color: Color(0xff023047),
+                          )),
                         ),
                       ),
                     ),
@@ -70,10 +80,18 @@ class _ComprasListPageState extends State<ComprasListPage> {
                     ElevatedButton(
                       onPressed: () {
                         String text = productsController.text;
+                        if (text.isEmpty) {
+                          setState(() {
+                            errorText = "Insira um produto";
+                          });
+                          return;
+                        }
+
                         setState(() {
                           Product newProduct =
                               Product(title: text, date: DateTime.now());
                           products.add(newProduct);
+                          errorText = null;
                         });
                         productsController.clear();
                         productRepository.saveProductList(products);
